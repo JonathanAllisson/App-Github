@@ -7,7 +7,20 @@ import api from '../../services/api';
 
 import Icon from 'react-native-vector-icons/MaterialIcons';
 
-import { Container, Form, Input, SubmitButton, List, User, Avatar, Name, Bio, ProfileButton, ProfileButtonText } from './styles';
+import { Container,
+        Form,
+        Input,
+        SubmitButton,
+        List,
+        User,
+        Avatar,
+        Name,
+        Bio,
+        ProfileButton,
+        ProfileButtonText,
+        Delete,
+        DeleteButtonText
+      } from './styles';
 
 export default class Main extends Component {
 
@@ -61,6 +74,10 @@ export default class Main extends Component {
     Keyboard.dismiss();
   }
 
+  handleDelete = (user) =>{
+    this.setState({ users: this.state.users.filter(otherUser => otherUser !== user ) });
+  }
+
   handleNavigate = (user, type) =>{
     const { navigation } = this.props;
     navigation.navigate('User', { user, type });
@@ -97,6 +114,9 @@ export default class Main extends Component {
           keyExtrator={user => user.login}
           renderItem={({ item }) => (
             <User>
+              <Delete onPress={() => this.handleDelete(item)}>
+                <DeleteButtonText>x</DeleteButtonText>
+              </Delete>
               <Avatar source={{ uri: item.avatar }} />
               <Name>{item.name}</Name>
               <Bio>{item.bio}</Bio>

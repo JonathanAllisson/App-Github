@@ -46,6 +46,17 @@ export const User = styled.View`
   margin: 0 20px 30px;
 `;
 
+export const Delete = styled(RectButton)`
+  position: absolute;
+  right: 0;
+  margin-right: 10px;
+`;
+
+export const DeleteButtonText = styled.Text`
+  color: #999;
+  font-size: 17px;
+`;
+
 export const Avatar = styled.Image`
   width: 64px;
   height: 64px;
@@ -87,3 +98,4 @@ export const ProfileButtonText = styled.Text`
   color: #fff;
   text-transform: uppercase;
 `;
+
