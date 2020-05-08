@@ -1,5 +1,4 @@
 import React, {Component} from 'react';
-import PropTypes from 'prop-types';
 import api from '../../services/api';
 
 import { Container, Header, Avatar, Name, Bio, Stars, Starred, OwnedAvatar, Info, Title, Author } from './styles';
@@ -7,14 +6,10 @@ import { View } from 'react-native';
 
 export default class User extends Component {
 
-  static propTypes = {
-    navigation: PropTypes.shape({
-      getParam: PropTypes.func,
-    }).isRequired,
-  };
+
 
   state = {
-    stars: [],
+    repositories: [],
   };
 
   async componentDidMount(){
@@ -24,12 +19,20 @@ export default class User extends Component {
 
     const response = await api.get(`/users/${user.login}/${type}?sort=created`);
 
-    this.setState({ stars: response.data });
+    this.setState({ repositories: response.data });
+  }
+
+  handleNavigate = (repository) =>{
+    const { navigation } = this.props;
+
+    console.log(repository);
+
+    navigation.navigate('Repository', { repository });
   }
 
   render(){
 
-    const { stars } = this.state;
+    const { repositories } = this.state;
 
     const user = this.props.route.params.user;
 
@@ -42,10 +45,10 @@ export default class User extends Component {
         </Header>
 
         <Stars
-          data={stars}
-          keyExtractor={star => String(star.id)}
+          data={repositories}
+          keyExtractor={repository => String(repository.id)}
           renderItem={({ item }) => (
-            <Starred>
+            <Starred onPress={() => this.handleNavigate(item)}>
               <OwnedAvatar source={{ uri: item.owner.avatar_url }} />
               <Info>
                 <Title>{item.name}</Title>
