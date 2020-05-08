@@ -1,26 +1,64 @@
 import React, {Component} from 'react';
 import api from '../../services/api';
+import Lottie from 'lottie-react-native';
 
-import { Container, Header, Avatar, Name, Bio, Stars, Starred, OwnedAvatar, Info, Title, Author } from './styles';
-import { View } from 'react-native';
+import { Container,
+  Header,
+  Avatar,
+  Name,
+  Bio,
+  Stars,
+  Starred,
+  OwnedAvatar,
+  Info,
+  Title,
+  Author,
+  Loading,
+} from './styles';
 
 export default class User extends Component {
 
-
-
   state = {
     repositories: [],
+    loading: true,
+    page: 1,
+    refreshing: false,
   };
 
   async componentDidMount(){
 
-    const user = this.props.route.params.user;
+    this.load();
+  }
+
+  load = async (page = 1) => {
+    const { repositories } = this.state;
     const type = this.props.route.params.type;
 
-    const response = await api.get(`/users/${user.login}/${type}?sort=created`);
+    const user = this.props.route.params.user;
 
-    this.setState({ repositories: response.data });
+    const response = await api.get(`/users/${user.login}/${type}?sort=created`,{
+      params: { page },
+    });
+
+    this.setState({
+      repositories: page >= 2 ? [...repositories, ...response.data] : response.data,
+      page,
+      loading: false,
+      refreshing: false,
+    })
   }
+
+  loadMore = () => {
+    const { page } = this.state;
+
+    const nextPage = page + 1;
+
+    this.load(nextPage);
+  };
+
+  refreshList = () => {
+    this.setState({ refreshing: true, repositories: [] }, this.load);
+  };
 
   handleNavigate = (repository) =>{
     const { navigation } = this.props;
@@ -32,7 +70,7 @@ export default class User extends Component {
 
   render(){
 
-    const { repositories } = this.state;
+    const { repositories, loading, refreshing } = this.state;
 
     const user = this.props.route.params.user;
 
@@ -44,19 +82,28 @@ export default class User extends Component {
           <Bio>{user.bio}</Bio>
         </Header>
 
-        <Stars
-          data={repositories}
-          keyExtractor={repository => String(repository.id)}
-          renderItem={({ item }) => (
-            <Starred onPress={() => this.handleNavigate(item)}>
-              <OwnedAvatar source={{ uri: item.owner.avatar_url }} />
-              <Info>
-                <Title>{item.name}</Title>
-                <Author>{item.owner.login}</Author>
-              </Info>
-            </Starred>
-          )}
-        />
+        {loading ? (
+          //<Loading/>
+          <Lottie resizeMode="contain" source={ require('../../assets/rocket.json') } autoPlay loop />
+        ) : (
+          <Stars
+            data={repositories}
+            onRefresh={this.refreshList}
+            refreshing={refreshing}
+            onEndReachedThreshold={0.2}
+            onEndReached={this.loadMore}
+            keyExtractor={repository => String(repository.id)}
+            renderItem={({ item }) => (
+              <Starred onPress={() => this.handleNavigate(item)}>
+                <OwnedAvatar source={{ uri: item.owner.avatar_url }} />
+                <Info>
+                  <Title>{item.name}</Title>
+                  <Author>{item.owner.login}</Author>
+                </Info>
+              </Starred>
+            )}
+          />
+        )}
       </Container>
     );
   }
