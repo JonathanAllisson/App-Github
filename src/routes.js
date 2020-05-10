@@ -8,6 +8,7 @@ const AppStack = createStackNavigator();
 import Main from './pages/Main';
 import User from './pages/User';
 import Repository from './pages/Repository';
+import {Background} from './styles';
 
 export default function Routes(){
   return (
@@ -15,9 +16,9 @@ export default function Routes(){
 
       <AppStack.Navigator
         screenOptions={{
-        headerStyle: {
-          backgroundColor: '#7159c1',
-        },
+        headerBackground: () => (
+          <Background />
+        ),
         headerTitleAlign: 'center',
         headerTintColor: '#fff',
         headerTitleStyle: {

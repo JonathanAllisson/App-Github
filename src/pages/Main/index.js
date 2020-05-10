@@ -56,20 +56,26 @@ export default class Main extends Component {
     const { newUser, users } = this.state;
 
     this.setState({ loading: true });
+    try{
+      const response = await api.get(`/users/${newUser}`);
+      const data = {
+        name: response.data.name,
+        login: response.data.login,
+        bio: response.data.bio,
+        avatar: response.data.avatar_url,
+      }
 
-    const response = await api.get(`/users/${newUser}`);
-    const data = {
-      name: response.data.name,
-      login: response.data.login,
-      bio: response.data.bio,
-      avatar: response.data.avatar_url,
+      this.setState({
+        users: [...users, data],
+        newUser: '',
+        loading: false,
+      });
+    }catch( err ){
+      this.setState({
+        newUser: '',
+        loading: false,
+      });
     }
-
-    this.setState({
-      users: [...users, data],
-      newUser: '',
-      loading: false,
-    });
 
     Keyboard.dismiss();
   }
@@ -99,7 +105,7 @@ export default class Main extends Component {
             returnKeyType = "send"
             onSubmitEditing={this.handleSubmit}
           />
-          <SubmitButton loading={loading} onPress={() => this.handleSubmit }>
+          <SubmitButton loading={loading} onPress={ this.handleSubmit }>
             { loading ? (
               <ActivityIndicator color="#fff" />
               ) : (
@@ -121,11 +127,11 @@ export default class Main extends Component {
               <Name>{item.name}</Name>
               <Bio>{item.bio}</Bio>
 
-              <ProfileButton onPress={() => this.handleNavigate(item, 'starred')}>
-                <ProfileButtonText>Ver perfil</ProfileButtonText>
-              </ProfileButton>
               <ProfileButton onPress={() => this.handleNavigate(item, 'repos')}>
                 <ProfileButtonText>Ver repositórios</ProfileButtonText>
+              </ProfileButton>
+              <ProfileButton onPress={() => this.handleNavigate(item, 'starred')}>
+                <ProfileButtonText>Dados star</ProfileButtonText>
               </ProfileButton>
             </User>
           )}
